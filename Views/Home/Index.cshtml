@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Monitor</title>
+    <link id="themeStylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link id="darkThemeStylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.1.3/darkly/bootstrap.min.css" rel="stylesheet" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+    <style>
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .card.dark-mode {
+            background-color: #1e1e1e;
+        }
+
+        .card-healthy {
+            background-color: #d4edda !important; /* Light green background for healthy status */
+            color: #155724 !important;
+        }
+
+        .card-unhealthy {
+            background-color: #f8d7da !important; /* Light red background for unhealthy status */
+            color: #721c24 !important;
+        }
+
+        .btn-relay {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 100px;
+            right: 800px;
+        }
+
+        .btn-relay-on {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+            .btn-relay-on:hover {
+                background-color: #218838;
+            }
+
+        .btn-relay-off {
+            background-color: #dc3545;
+            color: #fff;
+            top: 100px; /* Adjust this value to move the button down */
+            right:600px;
+        }
+
+            .btn-relay-off:hover {
+                background-color: #c82333;
+            }
+
+        #themeToggleBtn {
+            position: absolute;
+            top: 70px;
+            right: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between mb-4">
+            <h1>Plant Monitor</h1>
+            <button id="themeToggleBtn" class="btn btn-primary">Toggle Theme</button>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Temperature</h5>
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Air Humidity</h5>
+                        <canvas id="humidityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Soil Moisture</h5>
+                        <canvas id="soilMoistureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button id="relayOnBtn" class="btn-relay btn-relay-on">Turn Relay On</button>
+        <button id="relayOffBtn" class="btn-relay btn-relay-off">Turn Relay Off</button>
+    </div>
+
+    <script>
+        // Function to toggle theme
+        function toggleTheme() {
+            const darkThemeStylesheet = document.getElementById('darkThemeStylesheet');
+            const isDarkMode = darkThemeStylesheet.disabled === false;
+
+            if (isDarkMode) {
+                darkThemeStylesheet.disabled = true;
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            } else {
+                darkThemeStylesheet.disabled = false;
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize theme based on saved preference
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.getElementById('darkThemeStylesheet').disabled = false;
+                document.body.classList.add('dark-mode');
+            }
+
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+
+            // Initialize the charts
+            initializeCharts();
+            // Start fetching data periodically
+            setInterval(fetchWeatherData, 5000);
+        });
+
+        var temperatureChart, humidityChart, soilMoistureChart;
+
+        function initializeCharts() {
+            var temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+            temperatureChart = new Chart(temperatureCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var humidityCtx = document.getElementById('humidityChart').getContext('2d');
+            humidityChart = new Chart(humidityCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Air Humidity (%)',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var soilMoistureCtx = document.getElementById('soilMoistureChart').getContext('2d');
+            soilMoistureChart = new Chart(soilMoistureCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Soil Moisture (%)',
+                        data: [],
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchWeatherData() {
+            try {
+                const response = await fetch('/Home/GetWeatherData');
+                const data = await response.json();
+
+                const currentTime = new Date().toLocaleTimeString();
+
+                // Update temperature chart
+                if (temperatureChart.data.labels.length >= 10) {
+                    temperatureChart.data.labels.shift();
+                    temperatureChart.data.datasets[0].data.shift();
+                }
+                temperatureChart.data.labels.push(currentTime);
+                temperatureChart.data.datasets[0].data.push(data.temperature);
+                temperatureChart.update();
+
+                // Update humidity chart
+                if (humidityChart.data.labels.length >= 10) {
+                    humidityChart.data.labels.shift();
+                    humidityChart.data.datasets[0].data.shift();
+                }
+                humidityChart.data.labels.push(currentTime);
+                humidityChart.data.datasets[0].data.push(data.humidity);
+                humidityChart.update();
+
+                // Update soil moisture chart
+                if (soilMoistureChart.data.labels.length >= 10) {
+                    soilMoistureChart.data.labels.shift();
+                    soilMoistureChart.data.datasets[0].data.shift();
+                }
+                soilMoistureChart.data.labels.push(currentTime);
+                soilMoistureChart.data.datasets[0].data.push(data.soilMoisture);
+                soilMoistureChart.update();
+
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        // AJAX function to send relay on request
+        document.getElementById('relayOnBtn').addEventListener('click', function () {
+            fetch('/Home/TurnRelayOn', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => console.log('Relay On:', data))
+                .catch(error => console.error('Error:', error));
+        });
+        // AJAX function to send relay off request
+        document.getElementById('relayOffBtn').addEventListener('click', function () {
+            fetch('/Home/TurnRelayOff', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => console.log('Relay Off:', data))
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
