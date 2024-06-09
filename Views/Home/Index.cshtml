@@ -13,6 +13,13 @@
             color: #ffffff;
         }
 
+        .image-frame {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
         .card.dark-mode {
             background-color: #1e1e1e;
         }
@@ -72,6 +79,10 @@
                         <h3 class="card-title">Latest Prediction</h3>
                         <h5>Predicted Label:</h5>
                         <div id="predictedLabel">@ViewBag.PredictedLabel</div>
+                    </div>
+                    <div class="card-body">
+                        <h5>Latest Image</h5>
+                        <img id="latestImage" src="" alt="Latest Image">
                     </div>
                 </div>
             </div>
@@ -272,6 +283,24 @@
                 }
             });
         }, 5000); // Update every 5 seconds
+
+        // Function to update the latest image
+        function updateLatestImage() {
+            $.ajax({
+                url: '@Url.Action("GetLatestImage", "Home")',
+                type: 'GET',
+                success: function (data) {
+                    $('#latestImage').attr('src', data);
+                },
+                error: function () {
+                    console.error("Error updating latest image.");
+                }
+            });
+        }
+
+        // Update latest image periodically
+        setInterval(updateLatestImage, 11000); // Update every 5 seconds
+
     </script>
 
 </body>

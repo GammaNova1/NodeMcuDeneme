@@ -76,7 +76,7 @@ void StartBackgroundTask(HomeController homeController, GoogleDriveService servi
     while (true)
     {
         // Wait for a certain period
-        Thread.Sleep(TimeSpan.FromSeconds(7));
+        Thread.Sleep(TimeSpan.FromSeconds(5));
         string folderId = "1MI-biSbcfcQQ5iWEimj3vChoiPoxnW07"; // Klasör ID'sini buraya yazýn
         string credentialsPath = Path.Combine(Directory.GetCurrentDirectory(), "credentials.json");
         string tokenPath = Path.Combine(Directory.GetCurrentDirectory(), "token.json");

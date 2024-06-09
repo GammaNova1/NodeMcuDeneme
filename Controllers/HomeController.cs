@@ -29,8 +29,6 @@ public class HomeController : Controller
     private string previousPredict = "";
     private static string _latestImagePath = null; // En son indirilen resmin yolu
 
-
-
     public HomeController(WeatherService weatherService, IWebHostEnvironment env, IHttpClientFactory httpClientFactory, ILogger<HomeController> logger)
     {
         _weatherService = weatherService;
