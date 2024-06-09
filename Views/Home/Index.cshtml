@@ -16,7 +16,7 @@
         .card.dark-mode {
             background-color: #1e1e1e;
         }
-        ine
+
         .card-healthy {
             background-color: #d4edda !important; /* Light green background for healthy status */
             color: #155724 !important;
@@ -26,8 +26,6 @@
             background-color: #f8d7da !important; /* Light red background for unhealthy status */
             color: #721c24 !important;
         }
-
-       
     </style>
 </head>
 <body>
@@ -35,7 +33,6 @@
         <div class="d-flex justify-content-between mb-4">
             <h1>Plant Monitor</h1>
             <button id="themeToggleBtn" class="btn btn-primary">Toggle Theme</button>
-   
         </div>
         <div class="text-center mb-4">
             <button id="relayOnBtn" class="btn btn-success btn-lg">Turn Relay On</button>
@@ -70,7 +67,7 @@
                 </div>
             </div>
             <div class="col-md-6 mb-4">
-                <div class="card">
+                <div class="card" id="predictionCard">
                     <div class="card-body">
                         <h3 class="card-title">Latest Prediction</h3>
                         <h5>Predicted Label:</h5>
@@ -80,6 +77,7 @@
             </div>
         </div>
     </div>
+
 
 
     <script>
@@ -238,21 +236,42 @@
                 .then(data => console.log('Relay Off:', data))
                 .catch(error => console.error('Error:', error));
         });
-    </script>
+        function updatePredictionCard(predictedLabel) {
+            const predictionCard = document.getElementById('predictionCard');
+            const predictedLabelDiv = document.getElementById('predictedLabel');
 
-    <script>
+            if (predictedLabel === 'No prediction yet') {
+                // Reset card to default
+                predictionCard.classList.remove('card-healthy');
+                predictionCard.classList.remove('card-unhealthy');
+                predictedLabelDiv.textContent = predictedLabel;
+            } else {
+                // Set card color based on prediction
+                if (predictedLabel === '{"predicted_label":"Tomato___healthy"}\n') {
+                    predictionCard.classList.remove('card-unhealthy');
+                    predictionCard.classList.add('card-healthy');
+                } else {
+                    predictionCard.classList.remove('card-healthy');
+                    predictionCard.classList.add('card-unhealthy');
+                }
+                // Update predicted label text
+                predictedLabelDiv.textContent = JSON.parse(predictedLabel).predicted_label;
+            }
+        }
+
+        // Periodically update predicted label
         setInterval(function () {
             $.ajax({
                 url: '@Url.Action("GetPredictedLabel", "Home")',
                 type: 'GET',
                 success: function (data) {
-                    $('#predictedLabel').text(data);
+                    updatePredictionCard(data);
                 },
                 error: function () {
-                    $('#predictedLabel').text("Error: Unable to get prediction.");
+                    updatePredictionCard("Error: Unable to get prediction.");
                 }
             });
-        }, 3000); // Update every 3 seconds
+        }, 5000); // Update every 5 seconds
     </script>
 
 </body>

@@ -26,7 +26,7 @@ public class HomeController : Controller
     private readonly GoogleDriveService _googleDriveService;
     private readonly HttpClient _httpClient;
     private static string _predictedLabel = "No prediction yet."; // Predicted label
-
+    private string previousPredict = "";
 
     public HomeController(WeatherService weatherService, IWebHostEnvironment env, IHttpClientFactory httpClientFactory, ILogger<HomeController> logger)
     {
@@ -122,11 +122,17 @@ public class HomeController : Controller
                     {
                         string result = await response.Content.ReadAsStringAsync();
                         _predictedLabel = result;
-
+                       // ViewBag.predictedLabel = _predictedLabel;
                         // Eğer tahmin "Tomato___healthy" dışında bir şeyse mail gönder
-                        if (_predictedLabel != "Tomato__healthy")
+                        if (_predictedLabel != "{\"predicted_label\":\"Tomato___healthy\"}\n")
                         {
-                            SendMail("YourPasswordCode"); // PasswordCode buraya gelecek
+                            if(previousPredict != _predictedLabel)
+                            {
+
+                                SendMail("YourPasswordCode");// PasswordCode buraya gelecek
+                                previousPredict = _predictedLabel;
+                            }
+                            
                         }
                     }
                     else
