@@ -14,6 +14,7 @@ namespace NodeMcuDeneme.Services
     {
         static string[] Scopes = { DriveService.Scope.DriveReadonly };
         static string ApplicationName = "ESP32-CAM Image Downloader";
+
         public async Task<string> DownloadLatestImageAsync(string folderId, string credentialsPath, string tokenPath)
         {
             UserCredential credential;
@@ -50,13 +51,12 @@ namespace NodeMcuDeneme.Services
                 var outputPath = Path.Combine(Environment.CurrentDirectory, "DownloadedImages", fileName);
 
                 var getRequest = service.Files.Get(fileId);
-                using (var stream = new MemoryStream())
+                using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
-                    await getRequest.DownloadAsync(stream);
-                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-                    await File.WriteAllBytesAsync(outputPath, stream.ToArray());
-                    return outputPath;
+                    await getRequest.DownloadAsync(fileStream);
                 }
+
+                return outputPath;
             }
             else
             {

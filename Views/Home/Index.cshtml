@@ -16,7 +16,7 @@
         .card.dark-mode {
             background-color: #1e1e1e;
         }
-
+        ine
         .card-healthy {
             background-color: #d4edda !important; /* Light green background for healthy status */
             color: #155724 !important;
@@ -27,45 +27,7 @@
             color: #721c24 !important;
         }
 
-        .btn-relay {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            border: none;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 100px;
-            right: 800px;
-        }
-
-        .btn-relay-on {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-            .btn-relay-on:hover {
-                background-color: #218838;
-            }
-
-        .btn-relay-off {
-            background-color: #dc3545;
-            color: #fff;
-            top: 100px; /* Adjust this value to move the button down */
-            right:600px;
-        }
-
-            .btn-relay-off:hover {
-                background-color: #c82333;
-            }
-
-        #themeToggleBtn {
-            position: absolute;
-            top: 70px;
-            right: 70px;
-        }
+       
     </style>
 </head>
 <body>
@@ -73,7 +35,13 @@
         <div class="d-flex justify-content-between mb-4">
             <h1>Plant Monitor</h1>
             <button id="themeToggleBtn" class="btn btn-primary">Toggle Theme</button>
+   
         </div>
+        <div class="text-center mb-4">
+            <button id="relayOnBtn" class="btn btn-success btn-lg">Turn Relay On</button>
+            <button id="relayOffBtn" class="btn btn-danger btn-lg">Turn Relay Off</button>
+        </div>
+
         <div class="row">
             <div class="col-md-6 mb-4">
                 <div class="card">
@@ -101,13 +69,18 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Latest Prediction</h3>
+                        <h5>Predicted Label:</h5>
+                        <div id="predictedLabel">@ViewBag.PredictedLabel</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="text-center">
-        <button id="relayOnBtn" class="btn-relay btn-relay-on">Turn Relay On</button>
-        <button id="relayOffBtn" class="btn-relay btn-relay-off">Turn Relay Off</button>
-    </div>
 
     <script>
         // Function to toggle theme
@@ -266,5 +239,21 @@
                 .catch(error => console.error('Error:', error));
         });
     </script>
+
+    <script>
+        setInterval(function () {
+            $.ajax({
+                url: '@Url.Action("GetPredictedLabel", "Home")',
+                type: 'GET',
+                success: function (data) {
+                    $('#predictedLabel').text(data);
+                },
+                error: function () {
+                    $('#predictedLabel').text("Error: Unable to get prediction.");
+                }
+            });
+        }, 3000); // Update every 3 seconds
+    </script>
+
 </body>
 </html>

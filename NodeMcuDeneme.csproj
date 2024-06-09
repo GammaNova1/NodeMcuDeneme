@@ -17,8 +17,13 @@
   <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3428" />
+    <PackageReference Include="MailKit" Version="4.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.31" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

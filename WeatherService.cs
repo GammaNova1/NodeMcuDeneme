@@ -14,7 +14,7 @@ public class WeatherService
 
     public async Task<WeatherData> GetWeatherDataAsync()
     {
-        string url = "http://192.168.43.87/";
+        string url = "http://192.168.224.87";
         var response = await _httpClient.GetStringAsync(url);
         Console.WriteLine(response); // Gelen cevabı kontrol etme
 
@@ -47,17 +47,15 @@ public class WeatherService
         return null;
     }
 
-
-
     public async Task TurnRelayOnAsync()
     {
-        string url = "http://192.168.43.87/relay/on";
+        string url = "http://192.168.224.87/relay/on";
         await _httpClient.GetStringAsync(url);
     }
 
     public async Task TurnRelayOffAsync()
     {
-        string url = "http://192.168.43.87/relay/off";
+        string url = "http://192.168.224.87/relay/off";
         await _httpClient.GetStringAsync(url);
     }
 }
