@@ -49,19 +49,24 @@ namespace NodeMcuDeneme.Services
                 var fileId = file.Id;
                 var fileName = file.Name;
                 var outputPath = Path.Combine(Environment.CurrentDirectory, "DownloadedImages", fileName);
+                var wwwrootPath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images", fileName);
 
                 var getRequest = service.Files.Get(fileId);
-                using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (var stream = new MemoryStream())
                 {
-                    await getRequest.DownloadAsync(fileStream);
+                    await getRequest.DownloadAsync(stream);
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+                    await File.WriteAllBytesAsync(outputPath, stream.ToArray());
+                    Directory.CreateDirectory(Path.GetDirectoryName(wwwrootPath));
+                    await File.WriteAllBytesAsync(wwwrootPath, stream.ToArray());
+                    return outputPath;
                 }
-
-                return outputPath;
             }
             else
             {
                 return null;
             }
         }
+
     }
 }

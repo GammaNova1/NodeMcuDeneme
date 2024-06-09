@@ -27,6 +27,9 @@ public class HomeController : Controller
     private readonly HttpClient _httpClient;
     private static string _predictedLabel = "No prediction yet."; // Predicted label
     private string previousPredict = "";
+    private static string _latestImagePath = null; // En son indirilen resmin yolu
+
+
 
     public HomeController(WeatherService weatherService, IWebHostEnvironment env, IHttpClientFactory httpClientFactory, ILogger<HomeController> logger)
     {
@@ -41,7 +44,10 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+      
         ViewBag.PredictedLabel = _predictedLabel;
+        ViewBag.LatestImage = _latestImagePath != null ? $"/images/{Path.GetFileName(_latestImagePath)}" : null; // Resim yolu
+
         var weatherData = await _weatherService.GetWeatherDataAsync();
         return View(weatherData);
     }
@@ -101,6 +107,7 @@ public class HomeController : Controller
         var latestFile = directory.GetFiles()
                                   .OrderByDescending(f => f.LastWriteTime)
                                   .FirstOrDefault();
+       // ViewBag.LatestFile = latestFile;
         return latestFile?.FullName;
     }
 
@@ -111,6 +118,7 @@ public class HomeController : Controller
 
         if (imagePath != null)
         {
+            _latestImagePath = imagePath;
             using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
             {
                 var content = new MultipartFormDataContent();
@@ -157,6 +165,14 @@ public class HomeController : Controller
     {
         return Content(_predictedLabel);
     }
+
+    [HttpGet]
+    public IActionResult GetLatestImage()
+    {
+        string latestImage = _latestImagePath != null ? $"/images/{Path.GetFileName(_latestImagePath)}" : null;
+        return Content(latestImage);
+    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
