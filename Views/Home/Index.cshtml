@@ -18,7 +18,13 @@
             padding: 5px;
             margin-top: 10px;
             text-align: center;
+
         }
+
+            .image-frame img {
+                max-width: 100%; /* Resmin maksimum genişliği 100% olarak ayarlanır */
+                height: auto; /* Yüksekliği otomatik olarak ayarlanır */
+            }
 
         .card.dark-mode {
             background-color: #1e1e1e;
@@ -82,12 +88,14 @@
                     </div>
                     <div class="card-body">
                         <h5>Latest Image</h5>
-                        <img id="latestImage" src="" alt="Latest Image">
+                        <!-- Fotoğrafın içinde bulunduğu div -->
+                        <div class="image-frame">
+                            <img id="latestImage" src="" alt="Latest Image">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+
 
 
 

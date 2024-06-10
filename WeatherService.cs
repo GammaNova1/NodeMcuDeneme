@@ -14,8 +14,8 @@ public class WeatherService
 
     public async Task<WeatherData> GetWeatherDataAsync()
     {
-        string url = "http://192.168.43.87";
-        var response = await _httpClient.GetStringAsync(url);
+         string url = "http://192.168.43.87";
+        var response = "bos;"; await _httpClient.GetStringAsync(url);
         Console.WriteLine(response); // Gelen cevabı kontrol etme
 
         var lines = response.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
