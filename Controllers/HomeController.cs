@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using MimeKit;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public class HomeController : Controller
 {
@@ -28,6 +29,9 @@ public class HomeController : Controller
     private static string _predictedLabel = "No prediction yet."; // Predicted label
     private string previousPredict = "";
     private static string _latestImagePath = null; // En son indirilen resmin yolu
+    private float Humidity = 0;
+    private float Temperature = 0;
+    private float SoilMoisture = 0;
 
     public HomeController(WeatherService weatherService, IWebHostEnvironment env, IHttpClientFactory httpClientFactory, ILogger<HomeController> logger)
     {
@@ -44,9 +48,10 @@ public class HomeController : Controller
     {
 
         ViewBag.PredictedLabel = _predictedLabel;
-        ViewBag.LatestImage = _latestImagePath != null ? $"/images/{Path.GetFileName(_latestImagePath)}" : null; // Resim yolu
-
+        ViewBag.LatestImage = _latestImagePath != null ? $"/images/{Path.GetFileName(_latestImagePath)}" : null;
+      
         var weatherData = await _weatherService.GetWeatherDataAsync();
+
         return View(weatherData);
     }
 
@@ -97,8 +102,23 @@ public class HomeController : Controller
     public async Task<IActionResult> GetWeatherData()
     {
         var weatherData = await _weatherService.GetWeatherDataAsync();
+        Humidity = weatherData.Humidity;
+        Temperature = weatherData.Temperature;
+        SoilMoisture = weatherData.SoilMoisture;
+
+        // Koşullar if içinde yazılacak.
+        if (Temperature > 40)
+        {
+            await _weatherService.TurnBuzzerOnAsync();
+        }
+        else
+        {
+            await _weatherService.TurnBuzzerOffAsync();
+        }
+
         return Json(weatherData);
     }
+
     private string GetLatestFile(string directoryPath)
     {
         var directory = new DirectoryInfo(directoryPath);
@@ -195,6 +215,20 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TurnBuzzerOn()
+    {
+        await _weatherService.TurnBuzzerOnAsync();
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TurnBuzzerOff()
+    {
+        await _weatherService.TurnBuzzerOffAsync();
+        return Json(new { success = true });
     }
 
 }
