@@ -77,4 +77,35 @@ public class WeatherService
         await _httpClient.GetStringAsync(url);
 
     }
+
+    public async Task TurnRedLedOffAsync()
+    {
+
+        string url = "http://192.168.43.87/redled/off";
+        await _httpClient.GetStringAsync(url);
+
+    }
+    public async Task TurnRedLedOnAsync()
+    {
+
+        string url = "http://192.168.43.87/redled/on";
+        await _httpClient.GetStringAsync(url);
+
+    }
+    public async Task TurnGreenLedOnAsync()
+    {
+
+        string url = "http://192.168.43.87/greenled/on";
+        await _httpClient.GetStringAsync(url);
+
+    }
+
+    public async Task TurnGreenLedOffAsync()
+    {
+
+        string url = "http://192.168.43.87/greenled/off";
+        await _httpClient.GetStringAsync(url);
+
+    }
+
 }

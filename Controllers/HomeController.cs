@@ -15,6 +15,7 @@ using System.Linq;
 using MimeKit;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Runtime.InteropServices;
 
 public class HomeController : Controller
 {
@@ -110,10 +111,14 @@ public class HomeController : Controller
         if (Temperature > 40)
         {
             await _weatherService.TurnBuzzerOnAsync();
+            await _weatherService.TurnGreenLedOffAsync();
+            await _weatherService.TurnRedLedOnAsync();
         }
         else
         {
             await _weatherService.TurnBuzzerOffAsync();
+            await _weatherService.TurnRedLedOffAsync();
+            await _weatherService.TurnGreenLedOnAsync();
         }
 
         return Json(weatherData);
@@ -128,7 +133,6 @@ public class HomeController : Controller
         // ViewBag.LatestFile = latestFile;
         return latestFile?.FullName;
     }
-
 
     public async Task PredictLatestImage()
     {
@@ -231,4 +235,26 @@ public class HomeController : Controller
         return Json(new { success = true });
     }
 
+    public async Task<IActionResult> TurnRedLedOff()
+    {
+        await _weatherService.TurnRedLedOffAsync();
+        return Json(new { success = true });
+    }
+
+    public async Task<IActionResult> TurnRedLedOn()
+    {
+        await _weatherService.TurnRedLedOnAsync();
+        return Json(new { success = true });
+    }
+
+    public async Task<IActionResult> TurnGreenLedOff()
+    {
+        await _weatherService.TurnGreenLedOffAsync();
+        return Json(new { success = true });
+    }
+    public async Task<IActionResult> TurnGreenLedOn()
+    {
+        await _weatherService.TurnGreenLedOnAsync();
+        return Json(new { success = true });
+    }
 }
